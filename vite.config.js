@@ -54,7 +54,8 @@ export default env => {
         symbolId: 'icon-[dir]-[name]',
       }),
       viteESLint({
-        include: ['src/**/*.vue', 'src/**/*.js'],
+        // include: ['src/**/*.vue', 'src/**/*.js'],
+        include: [''],
       }),
     ],
     css: {
@@ -73,6 +74,7 @@ export default env => {
       },
     },
     server: {
+      host: '0.0.0.0',
       port: 3001,
       open: true,
       proxy: {

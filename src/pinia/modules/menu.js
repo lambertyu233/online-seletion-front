@@ -79,6 +79,8 @@ export const useMenus = defineStore('menu', () => {
     // // 方式一：只有固定菜单
     // const menus = getFilterMenus(fixedRoutes)
     // commit('SET_MENUS', menus)
+    // const menus = getFilterMenus(fixedRoutes)
+    // setMenus(menus)
 
     // 方式二：有动态菜单
     // 从后台获取菜单

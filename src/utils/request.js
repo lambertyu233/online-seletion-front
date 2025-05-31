@@ -35,7 +35,8 @@ import router from '@/router'
 import { useApp } from '@/pinia/modules/app'
 
 const service = axios.create({
-  baseURL: '/',
+  // baseURL: 'http://localhost:8500',
+  baseURL: 'http://192.168.200.129:8500',
   timeout: 10000,
   withCredentials: true,
 })
@@ -45,7 +46,10 @@ service.interceptors.request.use(
   config => {
     const { authorization } = useApp()
     if (authorization) {
-      config.headers.Authorization = `Bearer ${authorization.token}`
+      // 添加一个请求头Authorization ， 该请求头所对应的值为：Bearer token数据
+      config.headers.Authorization = `Bearer ${authorization.jwt}`
+      // 上传传递方式后端解析太麻烦，因此可以更改传递token方式为如下方式
+      config.headers.token = `${authorization.token}`
     }
     return config
   },
@@ -59,7 +63,13 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   // 响应成功进入第1个函数，该函数的参数是响应对象
   response => {
-    return response.data
+    const res = response.data
+    if (res.code == 208) {
+      const redirect = encodeURIComponent(window.location.href)  // 当前地址栏的url
+      router.push(`/login?redirect=${redirect}`)
+      return Promise.reject(new Error(res.message || 'Error'))
+    }
+    return res
   },
   // 响应失败进入第2个函数，该函数的参数是错误对象
   async error => {

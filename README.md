@@ -119,3 +119,7 @@ npm run build
 ## License
 
 [MIT © ZSEN-2020](./LICENSE)
+
+
+改自己的端口在vite.config.js里面。
+后端接口在utils/request.js里面

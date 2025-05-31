@@ -42,10 +42,7 @@
         <topbar />
         <menus mode="horizontal" v-if="isMenusShow && isHorizontalMenu" />
         <tagsbar />
-        <breadcrumbs
-          v-if="isBreadcrumbsShow"
-          @on-breadcrumbs-change="handleBreadcrumbsChange"
-        />
+        <breadcrumbs v-if="isBreadcrumbsShow" @on-breadcrumbs-change="handleBreadcrumbsChange" />
       </div>
       <div class="main" :class="{ pt0: isBreadcrumbsShow && paddingFlag }">
         <Content />
@@ -62,7 +59,7 @@ import Tagsbar from './components/Tagsbar/index.vue'
 import Breadcrumbs from './components/Topbar/Breadcrumbs.vue'
 import Content from './components/Content/index.vue'
 import { useResizeHandler } from './hooks/useResizeHandler'
-import { storeToRefs } from 'pinia'
+// import { storeToRefs } from 'pinia'
 import { useLayoutsettings } from '@/pinia/modules/layoutSettings'
 
 export default defineComponent({
@@ -109,6 +106,7 @@ export default defineComponent({
   margin: 0 auto;
   width: 1440px;
   height: 100%;
+
   &.fluid {
     width: 100%;
   }
@@ -116,19 +114,23 @@ export default defineComponent({
   .right {
     flex: 1;
     overflow: auto;
+
     &.flex {
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
+
     .top {
       background: #fff;
     }
+
     .main {
       flex: 1;
       background: #f5f5f5;
       padding: 16px;
       overflow: auto;
+
       &.pt0 {
         padding-top: 0;
       }
