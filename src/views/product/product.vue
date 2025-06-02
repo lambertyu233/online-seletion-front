@@ -113,9 +113,8 @@
                     </el-form-item>
 
                     <el-form-item label="轮播图">
-                        <el-upload v-model:file-list="fileList" action="http://localhost:8501/admin/system/fileUpload"
-                            list-type="picture-card" multiple :on-success="handleSliderSuccess"
-                            :on-remove="handleRemove" :headers="headers">
+                        <el-upload v-model:file-list="fileList" list-type="picture-card" multiple
+                            :on-remove="handleRemove" :headers="headers" :http-request="sliderUpload">
                             <el-icon>
                                 <Plus />
                             </el-icon>
@@ -145,8 +144,7 @@
                         <el-table :data="product.productSkuList" border style="width: 100%">
                             <el-table-column prop="skuSpec" label="规格" width="180" />
                             <el-table-column label="图片" #default="scope" width="80">
-                                <el-upload class="avatar-uploader"
-                                    action="http://localhost:8501/admin/system/fileUpload" :show-file-list="false"
+                                <el-upload class="avatar-uploader" :http-request="skuUpload" :show-file-list="false"
                                     :on-success="(response, uploadFile, fileList) => handleSkuSuccess(response, uploadFile, fileList, scope.row)
                                         " :headers="headers">
                                     <img v-if="scope.row.thumbImg" :src="scope.row.thumbImg" class="avatar" />
@@ -180,9 +178,9 @@
                 </el-collapse-item>
                 <el-collapse-item title="商品详情信息" name="productDetails">
                     <el-form-item label="详情图片">
-                        <el-upload v-model:file-list="detailsFileList"
-                            action="http://localhost:8501/admin/system/fileUpload" list-type="picture-card" multiple
-                            :on-success="handleDetailsSuccess" :on-remove="handleDetailsRemove" :headers="headers">
+                        <el-upload v-model:file-list="detailsFileList" list-type="picture-card" multiple
+                            :on-success="handleDetailsSuccess" :on-remove="handleDetailsRemove" :headers="headers"
+                            :http-request="detailsUpload">
                             <el-icon>
                                 <Plus />
                             </el-icon>
@@ -303,6 +301,7 @@ import { FindAllProductUnit } from '@/api/productUnit.js'
 import { FindAllProductSpec } from '@/api/productSpec.js'
 import { useApp } from '@/pinia/modules/app'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { FileUpload } from '@/api/fileUpload'
 
 // ----------------------------------------------------分页列表查询 start --------------------------------------------------------------------------
 // 品牌列表数据模型
@@ -552,8 +551,21 @@ const handleRemove = (uploadFile, uploadFiles) => {
     sliderUrlList.value.splice(sliderUrlList.value.indexOf(uploadFile.url), 1)
 }
 const fileList = ref([])
-const handleSliderSuccess = (response, uploadFile) => {
-    sliderUrlList.value.push(response.data)
+// const handleSliderSuccess = (response, uploadFile) => {
+//     sliderUrlList.value.push(response.data)
+// }
+const sliderUpload = async (options) => {
+    const { file } = options // 获取用户选择的文件
+    try {
+        const res = await FileUpload(file) // 调用统一的 API 接口
+        // 假设后端返回 { code: 200, data: { url: '...' } }
+        if (res.code === 200) {
+            sliderUrlList.value.push(res.data)
+            ElMessage.success('上传成功')
+        }
+    } catch (error) {
+        ElMessage.error('上传失败')
+    }
 }
 
 
@@ -561,10 +573,18 @@ const handleSliderSuccess = (response, uploadFile) => {
 const handleSkuSuccess = (response, uploadFile, fileList, row) => {
     row.thumbImg = response.data
 }
+const skuUpload = async (options) => {
+    const { file } = options
+    return FileUpload(file) // 调用统一的 API
+}
 
 
 // 上传商品详情图片
 const detailsFileList = ref([])
+const detailsUpload = async (options) => {
+    const { file } = options
+    return FileUpload(file) // 调用统一的 API
+}
 const handleDetailsRemove = (uploadFile, uploadFiles) => {
     console.log(uploadFile, uploadFiles)
     detailsImageUrlList.value.splice(detailsImageUrlList.value.indexOf(uploadFile.url), 1)

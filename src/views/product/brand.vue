@@ -25,8 +25,8 @@
                 <el-input v-model="brand.name" />
             </el-form-item>
             <el-form-item label="品牌图标">
-                <el-upload class="avatar-uploader" action="http://localhost:8500/admin/system/fileUpload"
-                    :show-file-list="false" :on-success="handleAvatarSuccess" :headers="headers">
+                <el-upload class="avatar-uploader" :show-file-list="false" :headers="headers"
+                    :http-request="customUpload">
                     <img v-if="brand.logo" :src="brand.logo" class="avatar" />
                     <el-icon v-else class="avatar-uploader-icon">
                         <Plus />
@@ -49,6 +49,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { GetBrandPageList, SaveBrand, UpdateBrandById, DeleteBrandById } from '@/api/brand.js'
+import { FileUpload } from '@/api/fileUpload'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useApp } from '@/pinia/modules/app'
 
@@ -112,9 +113,19 @@ const editShow = row => {
     dialogVisible.value = true
 }
 
-//上传
-const handleAvatarSuccess = (response) => {
-    brand.value.logo = response.data
+// 自定义上传逻辑
+const customUpload = async (options) => {
+    const { file } = options // 获取用户选择的文件
+    try {
+        const res = await FileUpload(file) // 调用统一的 API 接口
+        // 假设后端返回 { code: 200, data: { url: '...' } }
+        if (res.code === 200) {
+            brand.value.logo = res.data // 更新品牌 logo 地址
+            ElMessage.success('上传成功')
+        }
+    } catch (error) {
+        ElMessage.error('上传失败')
+    }
 }
 
 // 保存数据

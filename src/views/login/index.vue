@@ -29,6 +29,16 @@
   <div class="change-lang">
     <change-lang />
   </div>
+  <div class="config-form">
+    <h2>API 基础地址配置</h2>
+    <form @submit.prevent="saveBaseUrl">
+      <div class="form-group">
+        <label for="baseUrl">基础 URL:</label>
+        <input type="text" id="baseUrl" v-model="baseUrl" placeholder="http://192.168.200.129:8500" />
+      </div>
+      <button type="submit">保存配置</button>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -56,6 +66,27 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
     const { lang } = useLang()
+
+    // 添加 baseUrl 响应式状态
+    const baseUrl = ref(localStorage.getItem('baseUrl') || 'http://192.168.200.129:8500')
+
+    // 添加保存配置的方法
+    const saveBaseUrl = () => {
+      if (!baseUrl.value) {
+        ctx.$message.error('请输入有效的URL')
+        return
+      }
+
+      try {
+        // 简单验证URL格式
+        new URL(baseUrl.value)
+        localStorage.setItem('baseUrl', baseUrl.value)
+        ctx.$message.success('配置已保存！下次请求将生效')
+      } catch (e) {
+        ctx.$message.error('请输入有效的URL（包含协议，如 http://）')
+      }
+    }
+
     watch(lang, () => {
       state.rules = getRules()
     })
@@ -150,6 +181,8 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      baseUrl,        // 暴露 baseUrl 到模板
+      saveBaseUrl,    // 暴露保存方法到模板
     }
   },
 })
@@ -245,5 +278,41 @@ export default defineComponent({
       }
     }
   }
+}
+
+.config-form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 8px 15px;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3aa876;
 }
 </style>

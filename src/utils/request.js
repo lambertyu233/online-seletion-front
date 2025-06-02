@@ -34,9 +34,15 @@ import { ElMessage } from 'element-plus'
 import router from '@/router'
 import { useApp } from '@/pinia/modules/app'
 
+// 获取 baseURL 的函数
+function getBaseUrl() {
+  // 从 localStorage 读取，如果没有则返回默认值
+  return localStorage.getItem('baseUrl') || 'http://192.168.200.129:8500'
+}
+
 const service = axios.create({
   // baseURL: 'http://localhost:8500',
-  baseURL: 'http://192.168.200.129:8500',
+  baseURL: getBaseUrl(), // 使用动态获取的 baseURL
   timeout: 10000,
   withCredentials: true,
 })
@@ -44,6 +50,9 @@ const service = axios.create({
 // 拦截请求
 service.interceptors.request.use(
   config => {
+    // 每次请求前确保使用最新的 baseURL
+    config.baseURL = getBaseUrl()
+
     const { authorization } = useApp()
     if (authorization) {
       // 添加一个请求头Authorization ， 该请求头所对应的值为：Bearer token数据
@@ -102,6 +111,7 @@ service.interceptors.response.use(
         const res = await axios({
           method: 'PUT',
           url: '/api/authorizations',
+          baseURL: getBaseUrl(), // 确保刷新 token 也使用最新的 baseURL
           timeout: 10000,
           headers: {
             Authorization: `Bearer ${authorization.refresh_token}`,
@@ -139,5 +149,18 @@ service.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// 添加一个方法来动态更新 baseURL
+export function updateBaseUrl(newUrl) {
+  try {
+    // 验证 URL 格式
+    new URL(newUrl)
+    localStorage.setItem('baseUrl', newUrl)
+    return true
+  } catch (e) {
+    ElMessage.error('请输入有效的URL（包含协议，如 http://）')
+    return false
+  }
+}
 
 export default service

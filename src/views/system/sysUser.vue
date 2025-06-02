@@ -46,8 +46,8 @@
                 <el-input v-model="sysUser.phone" />
             </el-form-item>
             <el-form-item label="头像">
-                <el-upload class="avatar-uploader" action="http://localhost:8501/admin/system/fileUpload"
-                    :show-file-list="false" :on-success="handleAvatarSuccess" :headers="headers">
+                <el-upload class="avatar-uploader" :show-file-list="false" :headers="headers"
+                    :http-request="customUpload">
                     <img v-if="sysUser.avatar" :src="sysUser.avatar" class="avatar" />
                     <el-icon v-else class="avatar-uploader-icon">
                         <Plus />
@@ -125,6 +125,7 @@ import { onMounted, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useApp } from '@/pinia/modules/app'
 import { GetAllRoleList } from '@/api/sysRole';
+import { FileUpload } from '@/api/fileUpload'
 
 // 表格数据模型
 const list = ref([]);
@@ -219,9 +220,19 @@ const headers = {
     token: useApp().authorization.token     // 从pinia中获取token，在进行文件上传的时候将token设置到请求头中
 }
 
-// 图像上传成功以后的事件处理函数
-const handleAvatarSuccess = (response, uploadFile) => {
-    sysUser.value.avatar = response.data
+// 自定义上传逻辑
+const customUpload = async (options) => {
+    const { file } = options // 获取用户选择的文件
+    try {
+        const res = await FileUpload(file) // 调用统一的 API 接口
+        // 假设后端返回 { code: 200, data: { url: '...' } }
+        if (res.code === 200) {
+            sysUser.value.avatar = res.data
+            ElMessage.success('上传成功')
+        }
+    } catch (error) {
+        ElMessage.error('上传失败')
+    }
 }
 
 // 角色列表

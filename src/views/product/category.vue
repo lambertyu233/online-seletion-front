@@ -7,8 +7,7 @@
     <el-dialog v-model="dialogImportVisible" title="导入" width="30%">
         <el-form label-width="120px">
             <el-form-item label="分类文件">
-                <el-upload class="upload-demo" action="http://localhost:8501/admin/product/category/importData"
-                    :on-success="onUploadSuccess" :headers="headers">
+                <el-upload class="upload-demo" :headers="headers" :http-request="customUpload">
                     <el-button type="primary">上传</el-button>
                 </el-upload>
             </el-form-item>
@@ -36,6 +35,7 @@ import { ref, onMounted } from 'vue';
 import { ExportCategoryData, FindCategoryByParentId } from '@/api/category.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useApp } from '@/pinia/modules/app'
+import { FileUpload } from '@/api/fileUpload'
 
 // 定义list属性模型
 const list = ref([])
@@ -82,11 +82,27 @@ const importData = () => {
 }
 
 // 上传文件成功以后要执行方法
-const onUploadSuccess = async (response, file) => {
-    ElMessage.success('操作成功')
-    dialogImportVisible.value = false
-    const { data } = await FindCategoryByParentId(0)
-    list.value = data;
+// const onUploadSuccess = async (response, file) => {
+//     ElMessage.success('操作成功')
+//     dialogImportVisible.value = false
+//     const { data } = await FindCategoryByParentId(0)
+//     list.value = data;
+// }
+// 自定义上传逻辑
+const customUpload = async (options) => {
+    const { file } = options // 获取用户选择的文件
+    try {
+        const res = await FileUpload(file) // 调用统一的 API 接口
+        // 假设后端返回 { code: 200, data: { url: '...' } }
+        if (res.code === 200) {
+            ElMessage.success('上传成功')
+            dialogImportVisible.value = false
+            const { data } = await FindCategoryByParentId(0)
+            list.value = data;
+        }
+    } catch (error) {
+        ElMessage.error('上传失败')
+    }
 }
 </script>
 
