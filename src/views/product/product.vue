@@ -32,7 +32,8 @@
     <el-table :data="list" style="width: 100%">
         <el-table-column prop="sliderUrls" label="轮播图" #default="scope" width="200">
             <div style="height: 50px;float: left;">
-                <img v-for="(item, index) in scope.row.sliderUrls" :key="index" :src="item" width="50" />
+                <img v-for="(item, index) in scope.row.sliderUrls" :key="index" :src="getMinioUrl() + item"
+                    width="50" />
             </div>
         </el-table-column>
         <el-table-column prop="name" label="商品名称" width="160" />
@@ -147,7 +148,8 @@
                                 <el-upload class="avatar-uploader" :http-request="skuUpload" :show-file-list="false"
                                     :on-success="(response, uploadFile, fileList) => handleSkuSuccess(response, uploadFile, fileList, scope.row)
                                         " :headers="headers">
-                                    <img v-if="scope.row.thumbImg" :src="scope.row.thumbImg" class="avatar" />
+                                    <img v-if="scope.row.thumbImg" :src="getMinioUrl() + scope.row.thumbImg"
+                                        class="avatar" />
                                     <el-icon v-else class="avatar-uploader-icon">
                                         <Plus />
                                     </el-icon>
@@ -248,7 +250,8 @@
             <el-row>
                 <el-col :span="24">
                     <el-form-item label="轮播图">
-                        <img v-for="(item, index) in sliderUrlList" :key="index" :src="item" style="width: 50px;" />
+                        <img v-for="(item, index) in sliderUrlList" :key="index" :src="getMinioUrl() + item"
+                            style="width: 50px;" />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -273,7 +276,8 @@
             <el-divider />
             <span style="margin-bottom: 5px;">商品详情信息</span>
             <el-form-item label="详情图片">
-                <img v-for="(item, index) in detailsImageUrlList" :key="index" :src="item" style="width: 80px;" />
+                <img v-for="(item, index) in detailsImageUrlList" :key="index" :src="getMinioUrl() + item"
+                    style="width: 80px;" />
             </el-form-item>
             <el-form-item>
                 <el-button type="success" size="large" @click="updateAuditStatus(product.id, 1)">
@@ -302,6 +306,7 @@ import { FindAllProductSpec } from '@/api/productSpec.js'
 import { useApp } from '@/pinia/modules/app'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { FileUpload } from '@/api/fileUpload'
+import { getMinioUrl } from '@/config/baseUrl'
 
 // ----------------------------------------------------分页列表查询 start --------------------------------------------------------------------------
 // 品牌列表数据模型
@@ -483,7 +488,7 @@ const fetchProductSpect = async () => {
 
 const saveOrUpdate = () => {
 
-    console.log('submit!' + product.value)
+    // console.log('submit!' + product.value)
     product.value.sliderUrls = sliderUrlList.value.join(',')
     product.value.detailsImageUrls = detailsImageUrlList.value.join(',')
     if (!product.value.id) {
@@ -503,7 +508,7 @@ const saveData = async () => {
 
 // 修改
 const updateData = async () => {
-    console.log(product.value)
+    console.log("product.value为" + product.value)
     await UpdateProductById(product.value)
     dialogVisible.value = false
     ElMessage.success('操作成功')
@@ -531,7 +536,7 @@ const changeSpecValueList = () => {
         return array;
     });
 
-    console.log(result)
+    // console.log(result)
     product.value.productSkuList = []
     result.forEach(function (item) {
         product.value.productSkuList.push({
@@ -548,7 +553,7 @@ const headers = {
     token: useApp().authorization.token     // 从pinia中获取token，在进行文件上传的时候将token设置到请求头中
 }
 const handleRemove = (uploadFile, uploadFiles) => {
-    sliderUrlList.value.splice(sliderUrlList.value.indexOf(uploadFile.url), 1)
+    sliderUrlList.value.splice(sliderUrlList.value.indexOf(uploadFile.url.replace(getMinioUrl(), '')), 1)
 }
 const fileList = ref([])
 // const handleSliderSuccess = (response, uploadFile) => {
@@ -586,15 +591,15 @@ const detailsUpload = async (options) => {
     return FileUpload(file) // 调用统一的 API
 }
 const handleDetailsRemove = (uploadFile, uploadFiles) => {
-    console.log(uploadFile, uploadFiles)
-    detailsImageUrlList.value.splice(detailsImageUrlList.value.indexOf(uploadFile.url), 1)
-    console.log(sliderUrlList.value)
+    // console.log(uploadFile, uploadFiles)
+    detailsImageUrlList.value.splice(detailsImageUrlList.value.indexOf(uploadFile.url.replace(getMinioUrl(), '')), 1)
+    // console.log(sliderUrlList.value)
 }
 const detailsImageUrlList = ref([])
 const handleDetailsSuccess = (response, uploadFile) => {
-    console.log(response)
+    // console.log(response)
     detailsImageUrlList.value.push(response.data)
-    console.log(detailsImageUrlList.value)
+    // console.log(detailsImageUrlList.value)
 }
 
 
@@ -609,7 +614,7 @@ const getById = async id => {
     const { data } = await GetProductById(id)
     product.value = data
     // eslint-disable-next-line no-debugger
-    console.log(product.value)
+    // console.log(product.value)
 
     //分类赋值
     categoryIdList.value = [product.value.category1Id, product.value.category2Id, product.value.category3Id]
@@ -618,7 +623,7 @@ const getById = async id => {
     fileList.value = []
     sliderUrlList.value = product.value.sliderUrls.split(',')
     sliderUrlList.value.forEach(url => {
-        fileList.value.push({ url: url })
+        fileList.value.push({ url: getMinioUrl() + url })
     })
 
     // 处理规格数据
@@ -634,7 +639,7 @@ const getById = async id => {
     detailsFileList.value = []
     detailsImageUrlList.value = product.value.detailsImageUrls.split(',')
     detailsImageUrlList.value.forEach(url => {
-        detailsFileList.value.push({ url: url })
+        detailsFileList.value.push({ url: getMinioUrl() + url })
     })
 
     //加载分类品牌
@@ -650,7 +655,7 @@ const getBrand = async () => {
 
 //删除
 const remove = async id => {
-    console.log('removeDataById:' + id)
+    // console.log('removeDataById:' + id)
     ElMessageBox.confirm('此操作将永久删除该记录, 是否继续?', 'Warning', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

@@ -48,7 +48,7 @@
             <el-form-item label="头像">
                 <el-upload class="avatar-uploader" :show-file-list="false" :headers="headers"
                     :http-request="customUpload">
-                    <img v-if="sysUser.avatar" :src="sysUser.avatar" class="avatar" />
+                    <img v-if="sysUser.avatar" :src="getMinioUrl() + sysUser.avatar" class="avatar" />
                     <el-icon v-else class="avatar-uploader-icon">
                         <Plus />
                     </el-icon>
@@ -70,7 +70,7 @@
         <el-table-column prop="name" label="姓名" />
         <el-table-column prop="phone" label="手机" />
         <el-table-column prop="avatar" label="头像" #default="scope">
-            <img :src="scope.row.avatar" width="50" />
+            <img :src="getMinioUrl() + scope.row.avatar" width="50" />
         </el-table-column>
         <el-table-column prop="description" label="描述" />
         <el-table-column prop="status" label="状态" #default="scope">
@@ -126,6 +126,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useApp } from '@/pinia/modules/app'
 import { GetAllRoleList } from '@/api/sysRole';
 import { FileUpload } from '@/api/fileUpload'
+import { getMinioUrl } from '@/config/baseUrl'
 
 // 表格数据模型
 const list = ref([]);
@@ -224,8 +225,7 @@ const headers = {
 const customUpload = async (options) => {
     const { file } = options // 获取用户选择的文件
     try {
-        const res = await FileUpload(file) // 调用统一的 API 接口
-        // 假设后端返回 { code: 200, data: { url: '...' } }
+        const res = await FileUpload(file)
         if (res.code === 200) {
             sysUser.value.avatar = res.data
             ElMessage.success('上传成功')

@@ -6,7 +6,7 @@
     <el-table :data="list" style="width: 100%">
         <el-table-column prop="name" label="品牌名称" />
         <el-table-column prop="logo" label="品牌图标" #default="scope">
-            <img :src="scope.row.logo" width="50" />
+            <img :src="getMinioUrl() + scope.row.logo" width="50" />
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" />
         <el-table-column label="操作" align="center" width="200" #default="scope">
@@ -27,7 +27,7 @@
             <el-form-item label="品牌图标">
                 <el-upload class="avatar-uploader" :show-file-list="false" :headers="headers"
                     :http-request="customUpload">
-                    <img v-if="brand.logo" :src="brand.logo" class="avatar" />
+                    <img v-if="brand.logo" :src="getMinioUrl() + brand.logo" class="avatar" />
                     <el-icon v-else class="avatar-uploader-icon">
                         <Plus />
                     </el-icon>
@@ -52,6 +52,7 @@ import { GetBrandPageList, SaveBrand, UpdateBrandById, DeleteBrandById } from '@
 import { FileUpload } from '@/api/fileUpload'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useApp } from '@/pinia/modules/app'
+import { getMinioUrl } from '@/config/baseUrl'
 
 // 定义表格数据模型
 const list = ref([])
@@ -175,5 +176,19 @@ const remove = async id => {
     border: 1px solid #ebeef5;
     border-radius: 3px;
     background-color: #fff;
+}
+
+.avatar-uploader .avatar {
+    width: 200px;
+    height: 150px;
+    display: block;
+}
+
+.el-icon.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 50px;
+    height: 50px;
+    text-align: center;
 }
 </style>

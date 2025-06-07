@@ -19,7 +19,7 @@
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
         <el-table-column prop="name" label="分类名称" />
         <el-table-column prop="imageUrl" label="图标" #default="scope">
-            <img :src="scope.row.imageUrl" width="50" />
+            <img :src="getMinioUrl() + scope.row.imageUrl" width="50" />
         </el-table-column>
         <el-table-column prop="orderNum" label="排序" />
         <el-table-column prop="status" label="状态" #default="scope">
@@ -36,6 +36,7 @@ import { ExportCategoryData, FindCategoryByParentId } from '@/api/category.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useApp } from '@/pinia/modules/app'
 import { FileUpload } from '@/api/fileUpload'
+import { getMinioUrl } from '@/config/baseUrl'
 
 // 定义list属性模型
 const list = ref([])

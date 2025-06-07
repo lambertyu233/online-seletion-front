@@ -33,7 +33,7 @@
         <el-table-column prop="categoryName" label="分类" />
         <el-table-column prop="brandName" label="品牌" />
         <el-table-column prop="logo" label="品牌图标" #default="scope">
-            <img :src="scope.row.logo" width="50" />
+            <img :src="getMinioUrl() + scope.row.logo" width="50" />
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" />
         <el-table-column label="操作" align="center" width="200" #default="scope">
@@ -74,6 +74,7 @@ import { FindAllBrand } from '@/api/brand.js'
 import { FindCategoryByParentId } from '@/api/category.js'
 import { GetCategoryBrandPageList, SaveCategoryBrand, UpdateCategoryBrandById, DeleteCategoryBrandById } from '@/api/categoryBrand.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getMinioUrl } from '@/config/baseUrl'
 
 const props = {
     lazy: true,
