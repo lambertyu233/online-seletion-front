@@ -49,7 +49,7 @@
     <div class="userinfo">
       <template v-if="!userinfo">
         <i class="el-icon-user" />
-        admin
+        {{ userinfo.username }}
       </template>
       <template v-else>
         <img class="avatar" :src="userinfo.avatar" />
@@ -73,7 +73,7 @@ import { useRouter } from 'vue-router'
 import { useUserinfo } from '@/components/Avatar/hooks/useUserinfo'
 import LockModal from './LockModal.vue'
 import { useApp } from '@/pinia/modules/app'
-
+import { getMinioUrl } from '@/config/baseUrl'
 import { defineComponent, getCurrentInstance } from 'vue'
 import { Logout } from '@/api/login'
 
@@ -85,6 +85,7 @@ export default defineComponent({
     const router = useRouter()
 
     const { userinfo } = useUserinfo()
+    userinfo.value.avatar = getMinioUrl() + userinfo.value.avatar
 
     const { proxy: ctx } = getCurrentInstance() // 可以把ctx当成vue2中的this
 
