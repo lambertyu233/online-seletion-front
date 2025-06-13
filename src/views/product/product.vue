@@ -262,7 +262,7 @@
                 <el-table :data="product.productSkuList" border style="width: 100%">
                     <el-table-column prop="skuSpec" label="规格" width="180" />
                     <el-table-column label="图片" #default="scope" width="80">
-                        <img :src="scope.row.thumbImg" style="width: 80px;" />
+                        <img :src="getMinioUrl() + scope.row.thumbImg" style="width: 80px;" />
                     </el-table-column>
                     <el-table-column label="售价" prop="salePrice" />
                     <el-table-column label="市场价" prop="marketPrice" />
